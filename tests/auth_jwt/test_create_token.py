@@ -1,6 +1,6 @@
 import pytest, jwt
-from fastapi_jwt_auth import AuthJWT
-from pydantic import BaseSettings
+from src.auth_jwt import AuthJWT
+from pydantic_settings import BaseSettings
 from datetime import timedelta, datetime, timezone
 
 def test_create_access_token(Authorize):

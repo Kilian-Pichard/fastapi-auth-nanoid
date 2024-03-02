@@ -16,7 +16,7 @@ from .exceptions import (
     RefreshTokenRequired,
     FreshTokenRequired
 )
-from nanoid.nanoid import NanoID
+from src.nanoid import NanoID
 
         
 class AuthJWT(AuthJWTConfig):

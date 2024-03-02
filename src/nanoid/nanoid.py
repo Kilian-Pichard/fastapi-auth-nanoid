@@ -1,6 +1,7 @@
 from os import urandom
 from math import ceil, log
 
+
 class NanoID:
     def __init__(self, alphabet: int = None, size: int = None, prefix: str = None):
         self._prefix = prefix
