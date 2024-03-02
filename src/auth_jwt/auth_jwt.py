@@ -5,6 +5,7 @@ from fastapi import Request, Response, WebSocket
 from typing import Union, Optional, Sequence, Dict
 from datetime import datetime, timezone, timedelta
 
+from .auth_jwt_config import AuthJWTConfig
 from .exceptions import (
     InvalidHeaderError,
     JWTDecodeError,
@@ -18,7 +19,7 @@ from .exceptions import (
 from nanoid.nanoid import NanoID
 
         
-class AuthJWT:
+class AuthJWT(AuthJWTConfig):
     def __init__(self,req: Request = None, res: Response = None):
         """
         Get jwt header from incoming request or get
