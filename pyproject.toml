@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "fastapi-auth-nanoid"
-version = "0.1.0"
+version = "0.6.0"
 description = "A FastAPI extension that provides Authentication support using NanoID (secure, easy to use and lightweight)"
 authors = [
     "Kilian Pichard <contact@kilianpichard.com>", 
