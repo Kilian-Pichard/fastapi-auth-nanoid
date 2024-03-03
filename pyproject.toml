@@ -1,0 +1,55 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "fastapi-auth-nanoid"
+version = "0.1.0"
+description = "A FastAPI extension that provides Authentication support using NanoID (secure, easy to use and lightweight)"
+authors = [
+    "Kilian Pichard <contact@kilianpichard.com>", 
+    "Nyoman Pradipta Dewantara <nyomanpradipta120@gmail.com>"
+]
+maintainers = [
+    "Kilian Pichard <contact@kilianpichard.com>", 
+]
+license = "MIT"
+readme = "README.md"
+homepage = "https://Kilian-Pichard.github.io/fastapi-auth-nanoid"
+repository = "https://github.com/Kilian-Pichard/fastapi-auth-nanoid"
+documentation = "https://Kilian-Pichard.github.io/fastapi-auth-nanoid"
+keywords = ["fastapi", "auth", "nanoid", "authentication", "security", "jwt"]
+classifiers = [
+  "Environment :: Web Environment",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",  
+  "Programming Language :: Python :: 3.12",  
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+PyJWT = "^2.8.0"
+fastapi = "^0.110.0"
+coverage = "6.4"
+cryptography = ">=41.0.3,<42.0.5"
+pydantic-settings = "^2.1.0"
+
+
+[tool.poetry.dev-dependencies]
+pytest = "^7.0.1"
+requests = "^2.27.1"
+pytest-cov = "^4.0.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.3"
+httpx = "^0.25.2"
+
+
