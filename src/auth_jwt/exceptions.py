@@ -56,3 +56,10 @@ class FreshTokenRequired(AuthJWTException):
     protected by fresh_jwt_required
     """
     pass
+
+class NotEnoughPermissions(AuthJWTException):
+    """
+    Error raised when a valid JWT attempt to access an endpoint
+    protected by scope requirements
+    """
+    pass

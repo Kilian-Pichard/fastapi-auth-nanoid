@@ -14,7 +14,8 @@ from .exceptions import (
     RevokedTokenError,
     AccessTokenRequired,
     RefreshTokenRequired,
-    FreshTokenRequired
+    FreshTokenRequired,
+    NotEnoughPermissions
 )
 from src.nanoid import NanoID
 
@@ -39,6 +40,8 @@ class AuthJWT(AuthJWTConfig):
             if self.jwt_in_headers:
                 auth = req.headers.get(self._header_name.lower())
                 if auth: self._get_jwt_from_headers(auth)
+                
+        self._required_scopes = []
                 
     def _get_jwt_from_headers(self, auth: str) -> "AuthJWT":
         """
@@ -664,6 +667,8 @@ class AuthJWT(AuthJWTConfig):
         raw_token = self._verified_token(encoded_token,issuer)
         if raw_token['type'] in self._denylist_token_checks:
             self._check_token_is_revoked(raw_token)
+            
+        self._verifying_scopes(raw_token)
 
 
     def _verified_token(self, encoded_token: str, issuer: Optional[str] = None) -> Dict[str, Union[str, int, bool]]:
@@ -698,6 +703,16 @@ class AuthJWT(AuthJWTConfig):
             )
         except Exception as err:
             raise JWTDecodeError(status_code=422,message=str(err))
+        
+        
+    def _verifying_scopes(self, raw_token: dict) -> None:
+        #decoded_token = self.get_raw_jwt(encoded_token=token)
+        token_scopes = raw_token["scopes"] or []
+
+        if len(self._required_scopes)>0:
+            for scope in self._required_scopes:
+                if scope not in token_scopes:
+                    raise NotEnoughPermissions(status_code=401, message="Not enough permissions")
 
 
     def jwt_required(
@@ -706,6 +721,7 @@ class AuthJWT(AuthJWTConfig):
         token: Optional[str] = None,
         websocket: Optional[WebSocket] = None,
         csrf_token: Optional[str] = None,
+        scopes: list = []
     ) -> None:
         """
         Only access token can access this function
@@ -716,7 +732,10 @@ class AuthJWT(AuthJWTConfig):
         :param websocket: an instance of WebSocket, it's required if protected endpoint use a cookie to authorization
         :param csrf_token: the CSRF double submit token. since WebSocket cannot add specifying additional headers
                            its must be passing csrf_token manually and can achieve by Query Url or Path
+        :param scopes: list of scopes that required to access this endpoint
         """
+        self._required_scopes = scopes
+        
         if auth_from == "websocket":
             if websocket: self._verify_and_get_jwt_in_cookies('access', websocket, csrf_token)
             else: self._verify_jwt_in_request(token, 'access', 'websocket')
@@ -740,6 +759,7 @@ class AuthJWT(AuthJWTConfig):
         token: Optional[str] = None,
         websocket: Optional[WebSocket] = None,
         csrf_token: Optional[str] = None,
+        scopes: list = []
     ) -> None:
         """
         If an access token in present in the request you can get data from get_raw_jwt() or get_jwt_subject(),
@@ -752,7 +772,10 @@ class AuthJWT(AuthJWTConfig):
         :param websocket: an instance of WebSocket, it's required if protected endpoint use a cookie to authorization
         :param csrf_token: the CSRF double submit token. since WebSocket cannot add specifying additional headers
                            its must be passing csrf_token manually and can achieve by Query Url or Path
+        :param scopes: list of scopes that required to access this endpoint
         """
+        self._required_scopes = scopes
+
         if auth_from == "websocket":
             if websocket: self._verify_and_get_jwt_optional_in_cookies(websocket,csrf_token)
             else: self._verify_jwt_optional_in_request(token)
@@ -776,6 +799,7 @@ class AuthJWT(AuthJWTConfig):
         token: Optional[str] = None,
         websocket: Optional[WebSocket] = None,
         csrf_token: Optional[str] = None,
+        scopes: list = []
     ) -> None:
         """
         This function will ensure that the requester has a valid refresh token
@@ -786,7 +810,10 @@ class AuthJWT(AuthJWTConfig):
         :param websocket: an instance of WebSocket, it's required if protected endpoint use a cookie to authorization
         :param csrf_token: the CSRF double submit token. since WebSocket cannot add specifying additional headers
                            its must be passing csrf_token manually and can achieve by Query Url or Path
+        :param scopes: list of scopes that required to access this endpoint
         """
+        self._required_scopes = scopes
+        
         if auth_from == "websocket":
             if websocket: self._verify_and_get_jwt_in_cookies('refresh',websocket,csrf_token)
             else: self._verify_jwt_in_request(token, 'refresh', 'websocket')
@@ -810,6 +837,7 @@ class AuthJWT(AuthJWTConfig):
         token: Optional[str] = None,
         websocket: Optional[WebSocket] = None,
         csrf_token: Optional[str] = None,
+        scopes: list = []
     ) -> None:
         """
         This function will ensure that the requester has a valid access token and fresh token
@@ -820,7 +848,10 @@ class AuthJWT(AuthJWTConfig):
         :param websocket: an instance of WebSocket, it's required if protected endpoint use a cookie to authorization
         :param csrf_token: the CSRF double submit token. since WebSocket cannot add specifying additional headers
                            its must be passing csrf_token manually and can achieve by Query Url or Path
+        :param scopes: list of scopes that required to access this endpoint
         """
+        self._required_scopes = scopes
+
         if auth_from == "websocket":
             if websocket: self._verify_and_get_jwt_in_cookies('access', websocket, csrf_token, True)
             else: self._verify_jwt_in_request(token, 'access', 'websocket', True)
