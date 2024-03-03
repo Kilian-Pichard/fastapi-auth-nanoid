@@ -253,7 +253,7 @@ def test_cookie_optional_protected(client):
     @AuthJWT.load_config
     def change_request_methods():
         return [
-            ("authjwt_csrf_methods",{"GET"}),
+            ("authjwt_csrf_methods",["GET"]),
             ("authjwt_token_location",{'cookies'}),
             ("authjwt_secret_key","secret")
         ]
@@ -267,7 +267,7 @@ def test_cookie_optional_protected(client):
     @AuthJWT.load_config
     def change_request_csrf_protect_to_false():
         return [
-            ("authjwt_csrf_methods",{'POST','PUT','PATCH','DELETE'}),
+            ("authjwt_csrf_methods",['POST','PUT','PATCH','DELETE']),
             ("authjwt_token_location",{'cookies'}),
             ("authjwt_secret_key","secret"),
             ("authjwt_cookie_csrf_protect",False)
@@ -398,7 +398,7 @@ def test_cookie_protected(url,client):
     @AuthJWT.load_config
     def change_request_methods():
         return [
-            ("authjwt_csrf_methods",{"GET"}),
+            ("authjwt_csrf_methods",["GET"]),
             ("authjwt_token_location",{'cookies'}),
             ("authjwt_secret_key","secret"),
             ("authjwt_cookie_csrf_protect",True)
@@ -412,7 +412,7 @@ def test_cookie_protected(url,client):
     @AuthJWT.load_config
     def change_request_methods_to_default():
         return [
-            ("authjwt_csrf_methods",{'POST','PUT','PATCH','DELETE'}),
+            ("authjwt_csrf_methods",['POST','PUT','PATCH','DELETE']),
             ("authjwt_token_location",{'cookies'}),
             ("authjwt_secret_key","secret"),
         ]

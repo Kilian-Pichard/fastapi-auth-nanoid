@@ -20,7 +20,7 @@ from src.nanoid import NanoID
 
         
 class AuthJWT(AuthJWTConfig):
-    def __init__(self,req: Request = None, res: Response = None):
+    def __init__(self, req: Request = None, res: Response = None):
         """
         Get jwt header from incoming request or get
         request and response object if jwt in the cookie
@@ -40,7 +40,7 @@ class AuthJWT(AuthJWTConfig):
                 auth = req.headers.get(self._header_name.lower())
                 if auth: self._get_jwt_from_headers(auth)
                 
-    def _get_jwt_from_headers(self,auth: str) -> "AuthJWT":
+    def _get_jwt_from_headers(self, auth: str) -> "AuthJWT":
         """
         Get token from the headers
 
@@ -55,22 +55,22 @@ class AuthJWT(AuthJWTConfig):
             # <HeaderName>: <JWT>
             if len(parts) != 1:
                 msg = "Bad {} header. Expected value '<JWT>'".format(header_name)
-                raise InvalidHeaderError(status_code=422,message=msg)
+                raise InvalidHeaderError(status_code=422, message=msg)
             self._token = parts[0]
         else:
             # <HeaderName>: <HeaderType> <JWT>
-            if not re.match(r"{}\s".format(header_type),auth) or len(parts) != 2:
-                msg = "Bad {} header. Expected value '{} <JWT>'".format(header_name,header_type)
-                raise InvalidHeaderError(status_code=422,message=msg)
+            if not re.match(r"{}\s".format(header_type), auth) or len(parts) != 2:
+                msg = "Bad {} header. Expected value '{} <JWT>'".format(header_name, header_type)
+                raise InvalidHeaderError(status_code=422, message=msg)
             self._token = parts[1]
             
     def _get_jwt_identifier(self) -> str:
         """
         :return: NanoID generate random string
         """
-        return str(NanoID.generate())
+        return str(NanoID().generate())
     
-    def _get_int_from_datetime(self,value: datetime) -> int:
+    def _get_int_from_datetime(self, value: datetime) -> int:
         """
         :param value: datetime with or without timezone, if don't contains timezone
                       it will managed as it is UTC
@@ -89,7 +89,7 @@ class AuthJWT(AuthJWTConfig):
 
         :return: plain text or RSA depends on algorithm
         """
-        symmetric_algorithms, asymmetric_algorithms = {"HS256","HS384","HS512"}, requires_cryptography
+        symmetric_algorithms, asymmetric_algorithms = {"HS256", "HS384", "HS512"}, requires_cryptography
 
         if algorithm not in symmetric_algorithms and algorithm not in asymmetric_algorithms:
             raise ValueError("Algorithm {} could not be found".format(algorithm))
@@ -104,7 +104,7 @@ class AuthJWT(AuthJWTConfig):
 
         if algorithm in asymmetric_algorithms and not has_crypto:
             raise RuntimeError(
-                "Missing dependencies for using asymmetric algorithms. run 'pip install fastapi-another-jwt-auth[asymmetric]'"
+                "Missing dependencies for using asymmetric algorithms. run 'pip install fastapi-auth-nanoid[asymmetric]'"
             )
 
         if process == "encode":
@@ -130,7 +130,8 @@ class AuthJWT(AuthJWTConfig):
         exp_time: Optional[int],
         fresh: Optional[bool] = False,
         algorithm: Optional[str] = None,
-        headers: Optional[Dict] = None,
+        #headers: Optional[Dict] = None,
+        headers: Optional[dict[str]] = None,
         issuer: Optional[str] = None,
         audience: Optional[Union[str,Sequence[str]]] = None,
         user_claims: Optional[Dict] = {},
@@ -157,7 +158,7 @@ class AuthJWT(AuthJWTConfig):
         :return: Encoded token
         """
         # Validation type data
-        if not isinstance(subject, (str,int)):
+        if not isinstance(subject, (str, int)):
             raise TypeError("subject must be a string or integer")
         if not isinstance(fresh, bool):
             raise TypeError("fresh must be a boolean")
@@ -166,7 +167,7 @@ class AuthJWT(AuthJWTConfig):
         if algorithm and not isinstance(algorithm, str):
             raise TypeError("algorithm must be a string")
         if headers and not isinstance(headers, dict):
-            raise TypeError("headers must be a dict")            
+            raise TypeError("headers must be a dictionary")
         if user_claims and not isinstance(user_claims, dict):
             raise TypeError("user_claims must be a dictionary")
         
@@ -214,7 +215,7 @@ class AuthJWT(AuthJWTConfig):
         return self._token_in_denylist_callback is not None
 
 
-    def _check_token_is_revoked(self, raw_token: Dict[str,Union[str,int,bool]]) -> None:
+    def _check_token_is_revoked(self, raw_token: Dict[str, Union[str, int, bool]]) -> None:
         """
         Ensure that AUTHJWT_DENYLIST_ENABLED is true and callback regulated, and then
         call function denylist callback with passing decode JWT, if true
@@ -235,8 +236,8 @@ class AuthJWT(AuthJWTConfig):
     def _get_expired_time(
         self,
         type_token: str,
-        expires_time: Optional[Union[timedelta,int,bool]] = None
-    ) -> Union[None,int]:
+        expires_time: Optional[Union[timedelta, int, bool]] = None
+    ) -> Union[None, int]:
         """
         Dynamic token expired, if expires_time is False exp claim not created
 
@@ -245,7 +246,7 @@ class AuthJWT(AuthJWTConfig):
 
         :return: duration exp claim jwt
         """
-        if expires_time and not isinstance(expires_time, (timedelta,int,bool)):
+        if expires_time and not isinstance(expires_time, (timedelta, int, bool)):
             raise TypeError("expires_time must be between timedelta, int, bool")
 
         if expires_time is not False:
@@ -274,8 +275,8 @@ class AuthJWT(AuthJWTConfig):
         fresh: Optional[bool] = False,
         algorithm: Optional[str] = None,
         headers: Optional[Dict] = None,
-        expires_time: Optional[Union[timedelta,int,bool]] = None,
-        audience: Optional[Union[str,Sequence[str]]] = None,
+        expires_time: Optional[Union[timedelta, int, bool]] = None,
+        audience: Optional[Union[str, Sequence[str]]] = None,
         user_claims: Optional[Dict] = {}
     ) -> str:
         """
@@ -323,7 +324,7 @@ class AuthJWT(AuthJWTConfig):
         )
 
 
-    def _get_csrf_token(self,encoded_token: str) -> str:
+    def _get_csrf_token(self, encoded_token: str) -> str:
         """
         Returns the CSRF double submit token from an encoded JWT.
 
@@ -352,9 +353,9 @@ class AuthJWT(AuthJWTConfig):
                 "set_access_cookies() called without 'authjwt_token_location' configured to use cookies"
             )
 
-        if max_age and not isinstance(max_age,int):
+        if max_age and not isinstance(max_age, int):
             raise TypeError("max_age must be a integer")
-        if response and not isinstance(response,Response):
+        if response and not isinstance(response, Response):
             raise TypeError("The response must be an object response FastAPI")
 
         response = response or self._response
@@ -404,9 +405,9 @@ class AuthJWT(AuthJWTConfig):
                 "set_refresh_cookies() called without 'authjwt_token_location' configured to use cookies"
             )
 
-        if max_age and not isinstance(max_age,int):
+        if max_age and not isinstance(max_age, int):
             raise TypeError("max_age must be a integer")
-        if response and not isinstance(response,Response):
+        if response and not isinstance(response, Response):
             raise TypeError("The response must be an object response FastAPI")
 
         response = response or self._response
@@ -437,7 +438,7 @@ class AuthJWT(AuthJWTConfig):
             )
 
 
-    def unset_jwt_cookies(self,response: Optional[Response] = None) -> None:
+    def unset_jwt_cookies(self, response: Optional[Response] = None) -> None:
         """
         Unset (delete) all jwt stored in a cookie
 
@@ -447,7 +448,7 @@ class AuthJWT(AuthJWTConfig):
         self.unset_refresh_cookies(response)
 
 
-    def unset_access_cookies(self,response: Optional[Response] = None) -> None:
+    def unset_access_cookies(self, response: Optional[Response] = None) -> None:
         """
         Remove access token and access CSRF double submit from the response cookies
 
@@ -458,7 +459,7 @@ class AuthJWT(AuthJWTConfig):
                 "unset_access_cookies() called without 'authjwt_token_location' configured to use cookies"
             )
 
-        if response and not isinstance(response,Response):
+        if response and not isinstance(response, Response):
             raise TypeError("The response must be an object response FastAPI")
 
         response = response or self._response
@@ -477,7 +478,7 @@ class AuthJWT(AuthJWTConfig):
             )
 
 
-    def unset_refresh_cookies(self,response: Optional[Response] = None) -> None:
+    def unset_refresh_cookies(self, response: Optional[Response] = None) -> None:
         """
         Remove refresh token and refresh CSRF double submit from the response cookies
 
@@ -488,7 +489,7 @@ class AuthJWT(AuthJWTConfig):
                 "unset_refresh_cookies() called without 'authjwt_token_location' configured to use cookies"
             )
 
-        if response and not isinstance(response,Response):
+        if response and not isinstance(response, Response):
             raise TypeError("The response must be an object response FastAPI")
 
         response = response or self._response
@@ -509,7 +510,7 @@ class AuthJWT(AuthJWTConfig):
 
     def _verify_and_get_jwt_optional_in_cookies(
         self,
-        request: Union[Request,WebSocket],
+        request: Union[Request, WebSocket],
         csrf_token: Optional[str] = None,
     ) -> "AuthJWT":
         """
@@ -520,7 +521,7 @@ class AuthJWT(AuthJWTConfig):
         :param request: for identity get cookies from HTTP or WebSocket
         :param csrf_token: the CSRF double submit token
         """
-        if not isinstance(request,(Request,WebSocket)):
+        if not isinstance(request, (Request,WebSocket)):
             raise TypeError("request must be an instance of 'Request' or 'WebSocket'")
 
         cookie_key = self._access_cookie_key
@@ -530,7 +531,7 @@ class AuthJWT(AuthJWTConfig):
 
         if cookie and self._cookie_csrf_protect and not csrf_token:
             if isinstance(request, WebSocket) or request.method in self._csrf_methods:
-                raise CSRFError(status_code=401,message="Missing CSRF Token")
+                raise CSRFError(status_code=401, message="Missing CSRF Token")
 
         # set token from cookie and verify jwt
         self._token = cookie
@@ -541,9 +542,9 @@ class AuthJWT(AuthJWTConfig):
         if decoded_token and self._cookie_csrf_protect and csrf_token:
             if isinstance(request, WebSocket) or request.method in self._csrf_methods:
                 if 'csrf' not in decoded_token:
-                    raise JWTDecodeError(status_code=422,message="Missing claim: csrf")
-                if not hmac.compare_digest(csrf_token,decoded_token['csrf']):
-                    raise CSRFError(status_code=401,message="CSRF double submit tokens do not match")
+                    raise JWTDecodeError(status_code=422, message="Missing claim: csrf")
+                if not hmac.compare_digest(csrf_token, decoded_token['csrf']):
+                    raise CSRFError(status_code=401, message="CSRF double submit tokens do not match")
 
 
     def _verify_and_get_jwt_in_cookies(
@@ -563,9 +564,9 @@ class AuthJWT(AuthJWTConfig):
         :param csrf_token: the CSRF double submit token
         :param fresh: check freshness token if True
         """
-        if type_token not in ['access','refresh']:
+        if type_token not in ['access', 'refresh']:
             raise ValueError("type_token must be between 'access' or 'refresh'")
-        if not isinstance(request,(Request,WebSocket)):
+        if not isinstance(request, (Request, WebSocket)):
             raise TypeError("request must be an instance of 'Request' or 'WebSocket'")
 
         if type_token == 'access':
@@ -580,15 +581,15 @@ class AuthJWT(AuthJWTConfig):
                 csrf_token = request.headers.get(self._refresh_csrf_header_name)
 
         if not cookie:
-            raise MissingTokenError(status_code=401,message="Missing cookie {}".format(cookie_key))
+            raise MissingTokenError(status_code=401, message="Missing cookie {}".format(cookie_key))
 
         if self._cookie_csrf_protect and not csrf_token:
             if isinstance(request, WebSocket) or request.method in self._csrf_methods:
-                raise CSRFError(status_code=401,message="Missing CSRF Token")
+                raise CSRFError(status_code=401, message="Missing CSRF Token")
 
         # set token from cookie and verify jwt
         self._token = cookie
-        self._verify_jwt_in_request(self._token,type_token,'cookies',fresh)
+        self._verify_jwt_in_request(self._token, type_token, 'cookies', fresh)
 
         decoded_token = self.get_raw_jwt()
 
@@ -627,9 +628,9 @@ class AuthJWT(AuthJWTConfig):
         :param token_from: indicate token from headers cookies, websocket
         :param fresh: check freshness token if True
         """
-        if type_token not in ['access','refresh']:
+        if type_token not in ['access', 'refresh']:
             raise ValueError("type_token must be between 'access' or 'refresh'")
-        if token_from not in ['headers','cookies','websocket']:
+        if token_from not in ['headers', 'cookies', 'websocket']:
             raise ValueError("token_from must be between 'headers', 'cookies', 'websocket'")
 
         if not token:
@@ -665,7 +666,7 @@ class AuthJWT(AuthJWTConfig):
             self._check_token_is_revoked(raw_token)
 
 
-    def _verified_token(self,encoded_token: str, issuer: Optional[str] = None) -> Dict[str,Union[str,int,bool]]:
+    def _verified_token(self, encoded_token: str, issuer: Optional[str] = None) -> Dict[str, Union[str, int, bool]]:
         """
         Verified token and catch all error from jwt package and return decode token
 
@@ -679,10 +680,10 @@ class AuthJWT(AuthJWTConfig):
         try:
             unverified_headers = self.get_unverified_jwt_headers(encoded_token)
         except Exception as err:
-            raise InvalidHeaderError(status_code=422,message=str(err))
+            raise InvalidHeaderError(status_code=422, message=str(err))
 
         try:
-            secret_key = self._get_secret_key(unverified_headers['alg'],"decode")
+            secret_key = self._get_secret_key(unverified_headers['alg'], "decode")
         except Exception:
             raise
 
@@ -717,20 +718,20 @@ class AuthJWT(AuthJWTConfig):
                            its must be passing csrf_token manually and can achieve by Query Url or Path
         """
         if auth_from == "websocket":
-            if websocket: self._verify_and_get_jwt_in_cookies('access',websocket,csrf_token)
-            else: self._verify_jwt_in_request(token,'access','websocket')
+            if websocket: self._verify_and_get_jwt_in_cookies('access', websocket, csrf_token)
+            else: self._verify_jwt_in_request(token, 'access', 'websocket')
 
         if auth_from == "request":
             if len(self._token_location) == 2:
                 if self._token and self.jwt_in_headers:
-                    self._verify_jwt_in_request(self._token,'access','headers')
+                    self._verify_jwt_in_request(self._token, 'access', 'headers')
                 if not self._token and self.jwt_in_cookies:
-                    self._verify_and_get_jwt_in_cookies('access',self._request)
+                    self._verify_and_get_jwt_in_cookies('access', self._request)
             else:
                 if self.jwt_in_headers:
-                    self._verify_jwt_in_request(self._token,'access','headers')
+                    self._verify_jwt_in_request(self._token, 'access', 'headers')
                 if self.jwt_in_cookies:
-                    self._verify_and_get_jwt_in_cookies('access',self._request)
+                    self._verify_and_get_jwt_in_cookies('access', self._request)
 
 
     def jwt_optional(
@@ -788,19 +789,19 @@ class AuthJWT(AuthJWTConfig):
         """
         if auth_from == "websocket":
             if websocket: self._verify_and_get_jwt_in_cookies('refresh',websocket,csrf_token)
-            else: self._verify_jwt_in_request(token,'refresh','websocket')
+            else: self._verify_jwt_in_request(token, 'refresh', 'websocket')
 
         if auth_from == "request":
             if len(self._token_location) == 2:
                 if self._token and self.jwt_in_headers:
-                    self._verify_jwt_in_request(self._token,'refresh','headers')
+                    self._verify_jwt_in_request(self._token,'refresh', 'headers')
                 if not self._token and self.jwt_in_cookies:
-                    self._verify_and_get_jwt_in_cookies('refresh',self._request)
+                    self._verify_and_get_jwt_in_cookies('refresh', self._request)
             else:
                 if self.jwt_in_headers:
-                    self._verify_jwt_in_request(self._token,'refresh','headers')
+                    self._verify_jwt_in_request(self._token, 'refresh', 'headers')
                 if self.jwt_in_cookies:
-                    self._verify_and_get_jwt_in_cookies('refresh',self._request)
+                    self._verify_and_get_jwt_in_cookies('refresh', self._request)
 
 
     def fresh_jwt_required(
@@ -821,23 +822,23 @@ class AuthJWT(AuthJWTConfig):
                            its must be passing csrf_token manually and can achieve by Query Url or Path
         """
         if auth_from == "websocket":
-            if websocket: self._verify_and_get_jwt_in_cookies('access',websocket,csrf_token,True)
-            else: self._verify_jwt_in_request(token,'access','websocket',True)
+            if websocket: self._verify_and_get_jwt_in_cookies('access', websocket, csrf_token, True)
+            else: self._verify_jwt_in_request(token, 'access', 'websocket', True)
 
         if auth_from == "request":
             if len(self._token_location) == 2:
                 if self._token and self.jwt_in_headers:
-                    self._verify_jwt_in_request(self._token,'access','headers',True)
+                    self._verify_jwt_in_request(self._token, 'access', 'headers', True)
                 if not self._token and self.jwt_in_cookies:
-                    self._verify_and_get_jwt_in_cookies('access',self._request,fresh=True)
+                    self._verify_and_get_jwt_in_cookies('access', self._request, fresh=True)
             else:
                 if self.jwt_in_headers:
-                    self._verify_jwt_in_request(self._token,'access','headers',True)
+                    self._verify_jwt_in_request(self._token, 'access', 'headers', True)
                 if self.jwt_in_cookies:
-                    self._verify_and_get_jwt_in_cookies('access',self._request,fresh=True)
+                    self._verify_and_get_jwt_in_cookies('access', self._request,fresh=True)
 
 
-    def get_raw_jwt(self,encoded_token: Optional[str] = None) -> Optional[Dict[str,Union[str,int,bool]]]:
+    def get_raw_jwt(self, encoded_token: Optional[str] = None) -> Optional[Dict[str, Union[str, int, bool]]]:
         """
         this will return the python dictionary which has all of the claims of the JWT that is accessing the endpoint.
         If no JWT is currently present, return None instead
@@ -851,7 +852,7 @@ class AuthJWT(AuthJWTConfig):
             return self._verified_token(token)
         return None
 
-    def get_jti(self,encoded_token: str) -> str:
+    def get_jti(self, encoded_token: str) -> str:
         """
         Returns the JTI (unique identifier) of an encoded JWT
 
@@ -873,7 +874,7 @@ class AuthJWT(AuthJWTConfig):
         return None
 
 
-    def get_unverified_jwt_headers(self,encoded_token: Optional[str] = None) -> dict:
+    def get_unverified_jwt_headers(self, encoded_token: Optional[str] = None) -> dict:
         """
         Returns the Headers of an encoded JWT without verifying the actual signature of JWT
 
