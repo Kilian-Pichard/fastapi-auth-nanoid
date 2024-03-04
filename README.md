@@ -2,11 +2,6 @@
   FastAPI Auth NanoID
 </h1>
 
-![Tests](https://github.com/Kilian-Pichard/fastapi-auth-nanoid/workflows/Tests/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/Kilian-Pichard/fastapi-auth-nanoid/badge.svg?branch=master)](https://coveralls.io/github/Kilian-Pichard/fastapi-auth-nanoid?branch=master)
-[![PyPI version](https://badge.fury.io/py/fastapi-auth-nanoid.svg)](https://badge.fury.io/py/fastapi-auth-nanoid)
-[![Downloads](https://static.pepy.tech/personalized-badge/fastapi-auth-nanoid?period=total&units=international_system&left_color=grey&right_color=brightgreen&left_text=Downloads)](https://pepy.tech/project/fastapi-auth-nanoid)
-
 ---
 
 <h2> The project is based on <a href="https://pypi.org/project/fastapi-jwt-auth/" target="_blank">Fastapi-jwt-auth</a> that is no longer maintained.</h2>
