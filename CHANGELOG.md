@@ -1,3 +1,7 @@
+## 0.6.1
+
+- Fixing bugs on Github actions tests
+
 ## 0.6.0
 
 - Get code from IndominusByte/fastapi-jwt-auth repository because no longer maintained

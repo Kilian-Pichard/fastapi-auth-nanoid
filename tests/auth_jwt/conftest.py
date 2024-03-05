@@ -1,5 +1,6 @@
 import pytest
-from src.auth_jwt import AuthJWT
+from fastapi_auth_nanoid.auth_jwt import AuthJWT
+
 
 @pytest.fixture(scope="module")
 def Authorize():
